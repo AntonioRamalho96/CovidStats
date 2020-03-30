@@ -1,5 +1,5 @@
 function confirmedCases = fetchConfirmed(CountryName)
-    tbl=readtable('YourFile.csv');
+    tbl=readtable('confirmed.csv');
     
     index=find(strcmp((tbl{:,2}), CountryName));
     if(length(index) ~=1)

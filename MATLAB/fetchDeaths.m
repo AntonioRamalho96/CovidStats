@@ -1,5 +1,5 @@
 function deaths = fetchDeaths(CountryName)
-    tbl=readtable('YourFile.csv');
+    tbl=readtable('deaths.csv');
     index=find(strcmp(string(tbl{:,2}), CountryName));
     if(length(index) ~=1)
         if(length(index) ==0)
