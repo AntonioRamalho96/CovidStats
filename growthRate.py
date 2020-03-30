@@ -7,7 +7,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt #pylint: disable=import-error
-from dataClass import data
+from dataClass import confirmedCases
 
 def increaseRate(studied, medianFilter=False):
     increase=[0]*(len(studied)-1)
@@ -34,38 +34,38 @@ d0=[]
 style=[]
 name=[]
 
-case.append(increaseRate(data.portugal))
+case.append(increaseRate(confirmedCases.portugal))
 d0.append(31)
 style.append("gs")
 name.append("Portugal")
 
-case.append(increaseRate(data.italy))
+case.append(increaseRate(confirmedCases.italy))
 d0.append(11)
 style.append("r--")
 name.append("Italy")
 
-#case.append(increaseRate(data.germany))
+#case.append(increaseRate(confirmedCases.germany))
 #d0.append(19)
 #style.append("y--")
 #name.append("Germany")
 
-#case.append(increaseRate(data.spain))
+#case.append(increaseRate(confirmedCases.spain))
 #d0.append(20)
 #style.append("b--")
 #name.append("Spain")
 
 
-case.append(increaseRate(data.france))
+case.append(increaseRate(confirmedCases.france))
 d0.append(19)
 style.append("b--")
 name.append("France")
 
-#case.append(increaseRate(data.hubei))
+#case.append(increaseRate(confirmedCases.hubei))
 #d0.append(-25)
 #style.append("b--")
 #name.append("China Hubei")
 
-#case.append(increaseRate(data.southKorea))
+#case.append(increaseRate(confirmedCases.southKorea))
 #d0.append(7)
 #style.append("b--")
 #name.append("South Korea")
