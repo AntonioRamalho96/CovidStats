@@ -9,16 +9,22 @@ import matplotlib.pyplot as plt #pylint: disable=import-error
 pt=Fetch.confirmed("Portugal")
 
 #List of countries in further stages of epidemic, to compare
-nameList=["Germany", "Italy", "France", "Spain", "South_Korea"] #list of names
-colorsInGraphic=["y--", "g--", "b--", "r--", "bs"]
+nameList=["Germany", "Italy", "Spain", "South_Korea"] #list of names
+colorsInGraphic=["y--", "g--", "r--", "bs"] #List of styles in graphic
+# ATENTION: len(nameList) should be equal to len(colorsInGraphic)
 countryList=[Fetch.confirmed(countryName) for countryName in nameList]
 
 
+
 #defining useful methods
+#error measure
+def errorMetric(value1, value2):
+    return np.square(np.log(value1+20)-np.log(value2+20))
+
 def compareError(list1, list2):
     #average of (log(list1[i]+1)-log(list2[i]+1))^2
     # can be seen as average quadratic error of logariths
-    return sum([np.square(np.log(list1[i]+100)-np.log(list2[i]+100)) for i in range(len(list1))])/float(len(list1))
+    return sum([errorMetric(list1[i], list2[i]) for i in range(len(list1))])/float(len(list1))
 
 def dayForBestFit(list1, list2):
     #Finds a positive i such that
@@ -43,10 +49,13 @@ name.append("Portugal")
 
 #Data for plotting other countries
 for i in range(len(countryList)):
+    d=dayForBestFit(pt, countryList[i])
     case.append(countryList[i])
-    d0.append(dayForBestFit(pt, countryList[i]))
+    d0.append(d)
     style.append(colorsInGraphic[i])
     name.append(nameList[i])
+    print("Country: "+ nameList[i] + ", averageError: " + repr(compareError(pt[d:], (countryList[i])[:len(pt)-d])))
+
 
 #Plot everything
 handles=[]
