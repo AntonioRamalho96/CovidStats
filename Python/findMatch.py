@@ -29,7 +29,7 @@ def compareError(list1, list2):
 def dayForBestFit(list1, list2):
     #Finds a positive i such that
     #list1[i:] and list2[:len(list1)-i] are the best match possible
-    iMax=30
+    iMax=len(pt)
     listCompareErrors=[compareError(list1[i:], list2[:len(pt)-i]) for i in range(iMax)]
     return listCompareErrors.index(min(listCompareErrors))
 
