@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt #pylint: disable=import-error
 from Fetch import Fetch
 
 #update csv files
-Fetch.updateData()
+#Fetch.updateData()
 
 def increaseRate(studied, medianFilter=False):
     increase=[0]*(len(studied)-1)
@@ -47,36 +47,36 @@ d0.append(11)
 style.append("r--")
 name.append("Italy")
 
-#case.append(increaseRate(Fetch.confirmed("Germany")))
-#d0.append(19)
-#style.append("y--")
-#name.append("Germany")
-
-#case.append(increaseRate(Fetch.confirmed("Spain")))
-#d0.append(20)
-#style.append("b--")
-#name.append("Spain")
-
-
-case.append(increaseRate(Fetch.confirmed("France")))
+case.append(increaseRate(Fetch.confirmed("Germany")))
 d0.append(19)
-style.append("b--")
-name.append("France")
+style.append("y--")
+name.append("Germany")
+
+case.append(increaseRate(Fetch.confirmed("Spain")))
+d0.append(20)
+style.append("g--")
+name.append("Spain")
+
+
+#case.append(increaseRate(Fetch.confirmed("France")))
+#d0.append(19)
+#style.append("b--")
+#name.append("France")
 
 #case.append(increaseRate(Fetch.confirmed("China")))
 #d0.append(-25)
 #style.append("b--")
 #name.append("China Hubei")
 
-#case.append(increaseRate(Fetch.confirmed("South Korea")))
-#d0.append(7)
-#style.append("b--")
-#name.append("South Korea")
+case.append(increaseRate(Fetch.confirmed("South Korea")))
+d0.append(7)
+style.append("b--")
+name.append("South Korea")
 
 
 
 handles=[]
-for i in range(0,3):
+for i in range(0,5):
     handle, = plt.plot([x-d0[i] for x in range(len(case[i]))], case[i], style[i], label=name[i]  )
     handles.append(handle)
 
