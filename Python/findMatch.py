@@ -10,16 +10,23 @@ pt=Fetch.confirmed("Portugal")
 
 #List of countries in further stages of epidemic, to compare
 nameList=["Germany", "Italy", "Spain", "South_Korea"] #list of names
-colorsInGraphic=["y--", "g--", "r--", "bs"] #List of styles in graphic
+colorsInGraphic=["y--", "g--", "r--", "b--"] #List of styles in graphic
 # ATENTION: len(nameList) should be equal to len(colorsInGraphic)
 countryList=[Fetch.confirmed(countryName) for countryName in nameList]
 
 
 
 #defining useful methods
+def box_cox(value, lambda1=0.15, lambda2=50):
+    if(lambda1==0):
+        return np.log(value+lambda2)
+    else:
+        return ((value+lambda2)**lambda1-1)/lambda1
 #error measure
 def errorMetric(value1, value2):
-    return np.square(np.log(value1+20)-np.log(value2+20))
+    #return np.square(np.log(value1+100)-np.log(value2+100))
+    #return np.square(box_cox(value1)-box_cox(value2))
+    return np.square(value1-value2)
 
 def compareError(list1, list2):
     #average of (log(list1[i]+1)-log(list2[i]+1))^2
