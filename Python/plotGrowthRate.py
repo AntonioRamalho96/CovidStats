@@ -12,7 +12,7 @@ from Fetch import Fetch
 #update csv files
 #Fetch.updateData()
 
-def increaseRate(studied, medianFilter=False):
+def increaseRate(studied, meanFilter=True):
     increase=[0]*(len(studied)-1)
     for i in range(1,len(studied)):
         if(studied[i-1]==0):
@@ -21,10 +21,9 @@ def increaseRate(studied, medianFilter=False):
             increase[i-1]=studied[i]/float(studied[i-1])-1.0
 
     n=5
-    filtered=[0]*(len(increase)-n+1)
-    if medianFilter:
-        for i in range(len(filtered)):
-            filtered[i]=sum(increase[i:i+n])/float(n)
+
+    if meanFilter:
+        filtered=np.convolve(increase, np.ones((n,))/n, mode='valid')
     else:
         return increase
 
@@ -68,7 +67,7 @@ name.append("Spain")
 #style.append("b--")
 #name.append("China Hubei")
 
-case.append(increaseRate(Fetch.confirmed("South Korea")))
+case.append(increaseRate(Fetch.confirmed("South_Korea")))
 d0.append(7)
 style.append("b--")
 name.append("South Korea")
