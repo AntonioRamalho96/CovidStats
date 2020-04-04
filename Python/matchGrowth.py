@@ -4,14 +4,15 @@ import numpy as np
 import matplotlib.pyplot as plt #pylint: disable=import-error
 from copy import copy
 
+#Fetch.updateData()
 
 
 #Country in early stages of epidemic
 pt=Fetch.confirmed("Portugal")
 
 #List of countries in further stages of epidemic, to compare
-nameList=["Germany", "Italy", "Spain", "France", "South_Korea"] #list of names
-colorsInGraphic=["y--", "g--", "r--", "b--", "ys"] #List of styles in graphic
+nameList=["Germany", "Italy", "Spain", "France"]#, "South_Korea"] #list of names
+colorsInGraphic=["y--", "g--", "r--", "b--"]#, "ys"] #List of styles in graphic
 # ATENTION: len(nameList) should be equal to len(colorsInGraphic)
 countryList=[Fetch.confirmed(countryName) for countryName in nameList]
 
