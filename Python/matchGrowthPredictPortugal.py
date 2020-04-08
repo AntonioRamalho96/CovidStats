@@ -94,6 +94,8 @@ d0.append(len(pt))
 style.append('ys')
 name.append("Predict")
 
+print([a*day + b for day in range(len(pt), len(pt)+10)])
+
 #Plot everything
 handles=[]
 for i in range(len(case)):
