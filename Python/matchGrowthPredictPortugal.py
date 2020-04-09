@@ -42,7 +42,7 @@ def dayForBestFit(list1, list2):
     listCompareErrors=[compareError(list1[i:], list2[:len(pt)-i]) for i in range(iMax)]
     return listCompareErrors.index(min(listCompareErrors))
 
-def increaseRate(studied, meanFilter=True):
+def increaseRate(studied, meanFilter=False):
     #return the growth rate for every element in a list
     increase=[0]*(len(studied)-1)
     for i in range(1,len(studied)):
@@ -62,7 +62,21 @@ countryListCases=copy(countryList)
 countryList=[increaseRate(cases) for cases in countryList]
 
 
-#PLOT
+
+#Predict growth
+def predictGrowth(n0, degree):
+    #Poly fit for extrapolating the portuguese growth rate
+    #using the past n0 days. Extrapolates for next 10 days
+    if degree==2:
+        a,b,c=np.polyfit(range(len(pt)-n0, len(pt)), pt[len(pt)-n0:], 2)
+        return [a*day*day  + b*day + c for day in range(len(pt), len(pt)+10)]
+    else:
+        a,b=np.polyfit(range(len(pt)-n0, len(pt)), pt[len(pt)-n0:], 1)
+        return [a*day +b for day in range(len(pt), len(pt)+10)]
+
+growth=predictGrowth(11, 2)
+
+#PLOT-----------------------------------------------
 case=[]
 d0=[]
 style=[]
@@ -83,18 +97,12 @@ for i in range(len(countryList)):
     name.append(nameList[i])
     print("Country: "+ nameList[i] + ", averageError: " + repr(compareError(pt[d:], (countryList[i])[:len(pt)-d])))
 
-#Linear regression for finding the decrease rate for portugal 
-#from the past 10 days
-a,b=np.polyfit(range(len(pt)-10, len(pt)), pt[len(pt)-10:], 1)
-
-#Use that decrease to predict the following 10 days
-d=0
-case.append([a*day + b for day in range(len(pt), len(pt)+10)])
+#Data for plotting predicted growth
+case.append(growth)
 d0.append(len(pt))
 style.append('ys')
 name.append("Predict")
 
-print([a*day + b for day in range(len(pt), len(pt)+10)])
 
 #Plot everything
 handles=[]
@@ -106,3 +114,17 @@ plt.ylabel("Growth rate")
 plt.xlabel("Days")
 plt.show()
 
+#Estimate number of cases for future days
+today=ptCases[len(ptCases)-1]
+print()
+print("Predicted growth:")
+print(growth)
+
+print()
+print("Cases:")
+print("Today="+repr(today))
+i=0
+for g in growth:
+    today=today*(1+g)
+    i=i+1
+    print("Today+"+repr(i)+ "=" + repr(today))
