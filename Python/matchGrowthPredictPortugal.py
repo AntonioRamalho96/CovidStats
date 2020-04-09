@@ -42,7 +42,7 @@ def dayForBestFit(list1, list2):
     listCompareErrors=[compareError(list1[i:], list2[:len(pt)-i]) for i in range(iMax)]
     return listCompareErrors.index(min(listCompareErrors))
 
-def increaseRate(studied, meanFilter=False):
+def increaseRate(studied, meanFilter=True):
     #return the growth rate for every element in a list
     increase=[0]*(len(studied)-1)
     for i in range(1,len(studied)):
@@ -74,7 +74,7 @@ def predictGrowth(n0, degree):
         a,b=np.polyfit(range(len(pt)-n0, len(pt)), pt[len(pt)-n0:], 1)
         return [a*day +b for day in range(len(pt), len(pt)+10)]
 
-growth=predictGrowth(11, 2)
+growth=predictGrowth(14, 2)
 
 #PLOT-----------------------------------------------
 case=[]
