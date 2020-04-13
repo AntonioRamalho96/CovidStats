@@ -5,18 +5,11 @@ import matplotlib.pyplot as plt #pylint: disable=import-error
 from copy import copy
 
 #Fetch.updateData()
-
+D=39 #days for making model
 
 #Country in early stages of epidemic
 pt=Fetch.confirmed("Portugal")
-
-#List of countries in further stages of epidemic, to compare
-nameList=["Germany", "Italy", "Spain", "France"]#, "South_Korea"] #list of names
-colorsInGraphic=["y--", "g--", "r--", "b--"]#, "ys"] #List of styles in graphic
-# ATENTION: len(nameList) should be equal to len(colorsInGraphic)
-countryList=[Fetch.confirmed(countryName) for countryName in nameList]
-
-
+weekDay=[i%7 for i in range(len(pt)+30)]
 
 #defining useful methods
 def box_cox(value, lambda1=0.15, lambda2=50):
@@ -42,7 +35,7 @@ def dayForBestFit(list1, list2):
     listCompareErrors=[compareError(list1[i:], list2[:len(pt)-i]) for i in range(iMax)]
     return listCompareErrors.index(min(listCompareErrors))
 
-def increaseRate(studied, meanFilter=False):
+def increaseRate(studied, meanFilter=True):
     #return the growth rate for every element in a list
     increase=[0]*(len(studied)-1)
     for i in range(1,len(studied)):
@@ -50,6 +43,10 @@ def increaseRate(studied, meanFilter=False):
             increase[i-1]=0
         else:
             increase[i-1]=studied[i]/float(studied[i-1])-1.0
+            if(studied[i]==studied[i-1]):
+                increase[i-1]=increase[i-2]
+            if(studied[i-1]==studied[i-2]):
+                increase[i-1]=increase[i-2]
     n=5
     if meanFilter:
         return np.convolve(increase, np.ones((n,))/n, mode='valid')
@@ -57,25 +54,49 @@ def increaseRate(studied, meanFilter=False):
 
 #Study increase rates instead fo cases
 ptCases=copy(pt)
-pt=increaseRate(pt)
-countryListCases=copy(countryList)
-countryList=[increaseRate(cases) for cases in countryList]
+ptFiltered=increaseRate(pt, meanFilter=True)
+pt=increaseRate(pt, meanFilter=False)
 
 
 
 #Predict growth
-def predictGrowth(n0, degree):
+def predictGrowth(D, Dd, degree):
     #Poly fit for extrapolating the portuguese growth rate
-    #using the past n0 days. Extrapolates for next D days
-    D=15
+    #using the past D days. Extrapolates for next D days
     if degree==2:
-        a,b,c=np.polyfit(range(len(pt)-n0, len(pt)), pt[len(pt)-n0:], 2)
-        return [a*day*day  + b*day + c for day in range(len(pt), len(pt)+D)]
+        a,b,c=np.polyfit(range(len(pt)-D, len(pt)), pt[len(pt)-D:], 2)
+        return [a*day*day  + b*day + c for day in range(len(pt), len(pt)+Dd)]
     else:
-        a,b=np.polyfit(range(len(pt)-n0, len(pt)), pt[len(pt)-n0:], 1)
+        a,b=np.polyfit(range(len(pt)-D, len(pt)), pt[len(pt)-D:], 1)
         return [a*day +b for day in range(len(pt), len(pt)+D)]
 
-growth=predictGrowth(6, 1)
+#Match parabola
+def regression(pt, D, Dd, degree=2):
+    #Poly fit for accessing tendency
+    if(degree==2):
+        a,b,c=np.polyfit(range(len(pt)-D, len(pt)), pt[len(pt)-D:], 2)
+        return [a*day*day  + b*day + c for day in range(len(pt)-D, len(pt)+Dd)]
+    else:
+        a,b=np.polyfit(range(len(pt)-D, len(pt)), pt[len(pt)-D:], 1)
+        return [a*day +b for day in range(len(pt)-D, len(pt)+Dd)]
+
+#Compute error for each day of the weak
+def weeklyErrorVEctor(predict, vector, D):
+    errorVector=[[] for i in range(7)]
+    for day in range(len(vector)-D, len(vector)):
+        err=(vector[day]-predict[day-len(vector)+D])/float(predict[day-len(vector)+D]+0.1)
+        #print(err)
+        errorVector[weekDay[day]].append(err)
+    return [np.mean(weekDay) for weekDay in errorVector]
+
+#Compute correcting indexes
+growth=regression(pt, D, 10)
+weekCorrection=weeklyErrorVEctor(growth, pt, D)
+
+#print([pt[len(pt)-D+i]-growth[i] for i in range(D)])
+D=10
+growth=regression(pt, D, 10, degree=1)
+growthCorr=[(growth[day+D-len(pt)]+0.1)*(weekCorrection[weekDay[day]])+growth[day+D-len(pt)] for day in range(len(pt)-D, len(pt)+10)]
 
 #PLOT-----------------------------------------------
 case=[]
@@ -86,31 +107,29 @@ name=[]
 #Data for plotting country in early stage
 case.append(pt)
 d0.append(0)
-style.append("gs")
+style.append("g--")
 name.append("Portugal")
-
-#Data for plotting other countries
-for i in range(len(countryList)):
-    d=dayForBestFit(pt, countryList[i])
-    case.append(countryList[i])
-    d0.append(d)
-    style.append(colorsInGraphic[i])
-    name.append(nameList[i])
-    print("Country: "+ nameList[i] + ", averageError: " + repr(compareError(pt[d:], (countryList[i])[:len(pt)-d])))
 
 #Data for plotting predicted growth
 case.append(growth)
-d0.append(len(pt))
-style.append('ys')
-name.append("Predict")
+d0.append(len(pt)-D)
+style.append('y--')
+name.append("Predict (not seasonal)")
 
+#Predicted growth corrected
+case.append(growthCorr)
+d0.append(len(pt)-D)
+style.append('r--')
+name.append("Predict (seasonal)")
 
 #Plot everything
 handles=[]
 for i in range(len(case)):
     handle, = plt.plot([x+d0[i] for x in range(len(case[i]))], case[i], style[i], label=name[i]  )
     handles.append(handle)
-plt.legend(handles=handles)
+
+
+plt.legend()#handles=handles)
 plt.ylabel("Growth rate")
 plt.xlabel("Days")
 plt.show()
@@ -118,14 +137,11 @@ plt.show()
 #Estimate number of cases for future days
 today=ptCases[len(ptCases)-1]
 print()
-print("Predicted growth:")
-print(growth)
-
-print()
 print("Cases:")
 print("Today="+repr(today))
 i=0
-for g in growth:
+for g in growthCorr[D:]:
     today=today*(1+g)
     i=i+1
     print("Today+"+repr(i)+ "=" + repr(today))
+
